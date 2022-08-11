@@ -108,7 +108,9 @@ export default function Home() {
   }, []);
 
   // Run the getMessage function at load to get the message from the contract
-  useEffect(getMessage, [userSession]);
+  useEffect(() => {
+    getMessage
+  }, [userSession]);
 
   // Poll the Stacks API every 30 seconds looking for changes
   useInterval(getMessage, 30000);

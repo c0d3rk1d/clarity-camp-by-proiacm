@@ -74,7 +74,7 @@
         (ok u200)
     )
 )
-;; (contract-call? 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.auction bid 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.wl u1)
+;; (contract-call? 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.auction bid 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.wl u1 u200)
 
 (define-public (withdraw (nft <nft-token>) (nft-id uint)) 
     (let
@@ -100,14 +100,14 @@
             (highest-bidder (unwrap! (map-get? HighestBids {nft: (contract-of nft), nft-id: nft-id}) ERR_NO_BID_PLACED))
             (nft-seller (unwrap! (map-get? Seller {nft: (contract-of nft), nft-id: nft-id}) ERR_NO_BID_PLACED))
         )
-        ;; (asserts! (<= ends-at block-height) ERR_AUCTION_NOT_STARTED)
+        (asserts! (<= ends-at block-height) ERR_AUCTION_NOT_STARTED)
         
         (map-set Started { nft:  (contract-of nft), nft-id: nft-id } false)
         (if (is-eq (get bidder highest-bidder) nft-seller)
-            (try! (as-contract (contract-call? nft transfer nft-id CONTRACT_ADDRESS (get bidder highest-bidder))))
+            (try! (as-contract (contract-call? nft transfer nft-id CONTRACT_ADDRESS nft-seller)))
             (begin
                 (try! (as-contract (contract-call? nft transfer nft-id CONTRACT_ADDRESS (get bidder highest-bidder))))
-                (try! (as-contract (stx-transfer? (get bid highest-bidder) CONTRACT_ADDRESS (get bidder highest-bidder))))
+                (try! (as-contract (stx-transfer? (get bid highest-bidder) CONTRACT_ADDRESS nft-seller)))
             )
         )
         (ok u200)
